@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Users, MapPin, Camera, Clock, Trophy, AlertCircle } from "lucide-react";
+import Navbar from "@/components/Navbar";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />

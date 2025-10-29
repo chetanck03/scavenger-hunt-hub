@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { ZoomIn, Upload } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import Navbar from "@/components/Navbar";
 
 // Placeholder images - will be replaced later
 const PLACEHOLDER_IMAGES = [
@@ -36,20 +35,11 @@ const Game = () => {
     }, {} as Record<string, string[]>)
   );
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
-  const [submissionLink, setSubmissionLink] = useState("");
-
-  const handleSubmit = () => {
-    if (!submissionLink.trim()) {
-      toast.error("Please enter a submission link");
-      return;
-    }
-    toast.success("Task submitted successfully!");
-    setSubmissionLink("");
-    setSelectedGroup(null);
-  };
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 gradient-text animate-slide-up">
           Choose Your Group
@@ -106,30 +96,19 @@ const Game = () => {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Submission Link (Google Docs)
-                  </label>
-                  <Input
-                    type="url"
-                    placeholder="Paste your Google Docs link here..."
-                    value={submissionLink}
-                    onChange={(e) => setSubmissionLink(e.target.value)}
-                    className="bg-muted border-border"
-                  />
-                </div>
                 <Button
-                  onClick={handleSubmit}
+                  onClick={() => window.open('https://docs.com/hame', '_blank')}
                   className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity glow-primary"
                   size="lg"
                 >
                   <Upload className="mr-2 h-5 w-5" />
-                  Submit Task
+                  Submit Task (Google Docs)
                 </Button>
               </div>
             </Card>
           </div>
         )}
+      </div>
       </div>
 
       <Dialog open={!!zoomedImage} onOpenChange={() => setZoomedImage(null)}>
