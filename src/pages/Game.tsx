@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
@@ -6,8 +6,10 @@ import { ZoomIn, Upload, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Fixed assignment of 3 specific images to each group
-const GROUP_IMAGES = {
+const GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H"];
+
+// Original 3 images assignment for each group
+const ORIGINAL_GROUP_IMAGES = {
   "A": ["/img/pic1.jpg", "/img/pic2.jpg", "/img/pic3.jpg"],
   "B": ["/img/pic4.jpg", "/img/pic5.jpg", "/img/pic6.jpg"],
   "C": ["/img/pic7.jpg", "/img/pic8.jpg", "/img/pic9.jpg"],
@@ -18,12 +20,72 @@ const GROUP_IMAGES = {
   "H": ["/img/pic1.jpg", "/img/pic8.jpg", "/img/pic6.jpg"],
 };
 
-const GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H"];
+// Generate combined group images: 3 old + 9 new = 12 total per group
+const generateGroupImages = () => {
+  const groupImages: Record<string, string[]> = {};
+
+  GROUPS.forEach(group => {
+    // Start with the 3 original images
+    groupImages[group] = [...ORIGINAL_GROUP_IMAGES[group as keyof typeof ORIGINAL_GROUP_IMAGES]];
+
+    // Add the 9 new images from group folders
+    for (let i = 1; i <= 9; i++) {
+      groupImages[group].push(`/img/group/group${group}/${group}${i}.jpg`);
+    }
+  });
+
+  return groupImages;
+};
+
+const GROUP_IMAGES = generateGroupImages();
 
 const Game = () => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [groupImages] = useState<Record<string, string[]>>(GROUP_IMAGES);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+
+  // Memoize group images to prevent recreation
+  const groupImages = useMemo(() => GROUP_IMAGES, []);
+
+  // Preload images for better performance
+  useEffect(() => {
+    const preloadImages = () => {
+      // Get all unique image URLs
+      const allImages = new Set<string>();
+      Object.values(groupImages).forEach(images => {
+        images.forEach(img => allImages.add(img));
+      });
+
+      // Preload images in batches to avoid overwhelming the browser
+      const imageArray = Array.from(allImages);
+      const batchSize = 6; // Load 6 images at a time
+
+      const loadBatch = (startIndex: number) => {
+        const batch = imageArray.slice(startIndex, startIndex + batchSize);
+
+        batch.forEach(src => {
+          const img = new Image();
+          img.onload = () => {
+            setLoadedImages(prev => new Set(prev).add(src));
+          };
+          img.onerror = () => {
+            // Skip failed images
+            console.warn(`Failed to preload image: ${src}`);
+          };
+          img.src = src;
+        });
+
+        // Load next batch after a short delay
+        if (startIndex + batchSize < imageArray.length) {
+          setTimeout(() => loadBatch(startIndex + batchSize), 100);
+        }
+      };
+
+      loadBatch(0);
+    };
+
+    preloadImages();
+  }, [groupImages]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -68,23 +130,38 @@ const Game = () => {
 
               <Card className="card-gaming p-6 md:p-8 text-visible">
                 <h2 className="text-2xl md:text-3xl font-bold mb-6 gradient-text text-visible">
-                  Group {selectedGroup} - Your Spots
+                  Group {selectedGroup} - All Locations (12 Spots)
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
                   {groupImages[selectedGroup].map((image, idx) => (
                     <div
                       key={idx}
                       className="relative group overflow-hidden rounded-lg border border-border hover:border-primary transition-all"
                     >
+                      {/* Loading skeleton */}
+                      {!loadedImages.has(image) && (
+                        <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+                          <div className="text-gray-400 text-sm">Loading...</div>
+                        </div>
+                      )}
                       <img
                         src={image}
-                        alt={`Campus Location ${idx + 1}`}
-                        className="w-full h-48 md:h-64 object-cover transition-transform group-hover:scale-110"
+                        alt={`Group ${selectedGroup} - Location ${idx + 1}`}
+                        className={`w-full h-48 md:h-56 object-cover transition-all duration-300 group-hover:scale-110 ${loadedImages.has(image) ? 'opacity-100' : 'opacity-0'
+                          }`}
+                        loading="lazy"
+                        decoding="async"
+                        onLoad={() => {
+                          setLoadedImages(prev => new Set(prev).add(image));
+                        }}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           // Fallback to placeholder if local image fails
-                          target.src = `https://via.placeholder.com/400x300/1a1a2e/16a085?text=Campus+Location+${idx + 1}`;
+                          target.src = `https://via.placeholder.com/400x300/1a1a2e/16a085?text=Group+${selectedGroup}+Location+${idx + 1}`;
+                        }}
+                        style={{
+                          backgroundColor: loadedImages.has(image) ? 'transparent' : '#f3f4f6',
                         }}
                       />
                       <button
@@ -94,7 +171,7 @@ const Game = () => {
                         <ZoomIn className="w-8 h-8 text-primary" />
                       </button>
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                        <p className="text-sm font-semibold text-white">Campus Location {idx + 1}</p>
+                        <p className="text-sm font-semibold text-white">Group {selectedGroup} - Location {idx + 1}</p>
                       </div>
                     </div>
                   ))}
@@ -128,6 +205,8 @@ const Game = () => {
                 src={zoomedImage}
                 alt="Campus Location Detail"
                 className="max-w-full max-h-full object-contain rounded-lg"
+                loading="eager"
+                decoding="async"
               />
             </div>
           )}
