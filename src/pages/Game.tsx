@@ -44,10 +44,10 @@ const Game = () => {
         <div className="max-w-7xl mx-auto">
           {!selectedGroup ? (
             <>
-              <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 gradient-text animate-slide-up">
+              <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 gradient-text text-visible animate-fade-in-up">
                 Choose Your Group
               </h1>
-              <p className="text-center text-muted-foreground mb-12 animate-slide-up">
+              <p className="text-center text-muted-foreground mb-12 text-visible animate-fade-in-up">
                 Select a group to view your assigned spots
               </p>
 
@@ -55,14 +55,14 @@ const Game = () => {
                 {GROUPS.map((group, index) => (
                   <Card
                     key={group}
-                    className="card-gaming p-6 cursor-pointer text-center hover:scale-105 transition-transform"
+                    className="card-gaming p-6 cursor-pointer text-center hover:scale-105 transition-transform text-visible animate-fade-in-up"
                     style={{ animationDelay: `${index * 0.1}s` }}
                     onClick={() => setSelectedGroup(group)}
                   >
-                    <div className="text-5xl md:text-6xl font-bold gradient-text mb-2">
+                    <div className="text-5xl md:text-6xl font-bold gradient-text mb-2 text-visible">
                       {group}
                     </div>
-                    <p className="text-sm text-muted-foreground">Group {group}</p>
+                    <p className="text-sm text-muted-foreground text-visible">Group {group}</p>
                   </Card>
                 ))}
               </div>
@@ -72,14 +72,14 @@ const Game = () => {
               <Button
                 variant="ghost"
                 onClick={() => setSelectedGroup(null)}
-                className="mb-6 hover:bg-muted"
+                className="mb-6 text-black bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 "
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="mr-2 h-4 w-4 " />
                 Back to Groups
               </Button>
 
-              <Card className="card-gaming p-6 md:p-8">
-                <h2 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">
+              <Card className="card-gaming p-6 md:p-8 text-visible">
+                <h2 className="text-2xl md:text-3xl font-bold mb-6 gradient-text text-visible">
                   Group {selectedGroup} - Your Spots
                 </h2>
 
@@ -101,20 +101,20 @@ const Game = () => {
                         <ZoomIn className="w-8 h-8 text-primary" />
                       </button>
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                        <p className="text-sm font-semibold">Spot {idx + 1}</p>
+                        <p className="text-sm font-semibold text-visible">Spot {idx + 1}</p>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-4 text-visible">
                   <Button
                     onClick={() => window.open('https://docs.com/hame', '_blank')}
-                    className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity glow-primary"
+                    className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity glow-primary text-visible"
                     size="lg"
                   >
                     <Upload className="mr-2 h-5 w-5" />
-                    Submit Task (Google Docs)
+                    Submit Task
                   </Button>
                 </div>
               </Card>
@@ -127,7 +127,7 @@ const Game = () => {
       <Dialog open={!!zoomedImage} onOpenChange={() => setZoomedImage(null)}>
         <DialogContent className="max-w-4xl bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="gradient-text">Spot Detail</DialogTitle>
+            <DialogTitle className="gradient-text text-visible">Spot Detail</DialogTitle>
           </DialogHeader>
           {zoomedImage && (
             <img
