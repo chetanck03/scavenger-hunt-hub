@@ -5,6 +5,63 @@ import { Users, MapPin, Camera, Clock, Trophy, AlertCircle } from "lucide-react"
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroBackground from "@/components/HeroBackground";
+import { useState, useEffect } from "react";
+
+// Animated Counter Component
+const AnimatedCounter = ({ 
+  end, 
+  suffix = "", 
+  duration = 2000, 
+  delay = 0 
+}: { 
+  end: number; 
+  suffix?: string; 
+  duration?: number; 
+  delay?: number; 
+}) => {
+  const [count, setCount] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHasStarted(true);
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  useEffect(() => {
+    if (!hasStarted) return;
+
+    let startTime: number;
+    let animationFrame: number;
+
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      
+      // Easing function for smooth animation
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      const currentCount = Math.floor(easeOutQuart * end);
+      
+      setCount(currentCount);
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [end, duration, hasStarted]);
+
+  return <span>{count}{suffix}</span>;
+};
 
 const Index = () => {
   const navigate = useNavigate();
@@ -83,9 +140,7 @@ const Index = () => {
             <div className="absolute -top-2 -right-2 md:-top-4 md:-right-4 w-6 h-6 md:w-8 md:h-8 text-primary animate-spin-slow drop-shadow-lg">
               ⭐
             </div>
-            <div className="absolute -bottom-2 -left-2 md:-bottom-4 md:-left-4 w-5 h-5 md:w-7 md:h-7 text-secondary animate-bounce drop-shadow-lg">
-              🎯
-            </div>
+           
           </div>
 
           {/* Subtitle */}
@@ -99,15 +154,21 @@ const Index = () => {
           {/* Stats */}
           <div className="flex flex-wrap justify-center gap-4 md:gap-12 mb-8 text-visible animate-fade-in-up px-4" style={{ animationDelay: '0.6s' }}>
             <div className="text-center bg-background/60 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary/20 min-w-[80px]">
-              <div className="text-2xl md:text-3xl font-bold gradient-text drop-shadow-lg">50+</div>
+              <div className="text-2xl md:text-3xl font-bold gradient-text drop-shadow-lg">
+                <AnimatedCounter end={50} suffix="+" delay={800} duration={2000} />
+              </div>
               <div className="text-xs text-foreground/80 font-medium">Locations</div>
             </div>
             <div className="text-center bg-background/60 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary/20 min-w-[80px]">
-              <div className="text-2xl md:text-3xl font-bold gradient-text drop-shadow-lg">2-5</div>
+              <div className="text-2xl md:text-3xl font-bold gradient-text drop-shadow-lg">
+                2-<AnimatedCounter end={5} delay={1000} duration={1500} />
+              </div>
               <div className="text-xs text-foreground/80 font-medium">Team Size</div>
             </div>
             <div className="text-center bg-background/60 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary/20 min-w-[80px]">
-              <div className="text-2xl md:text-3xl font-bold gradient-text drop-shadow-lg">60min</div>
+              <div className="text-2xl md:text-3xl font-bold gradient-text drop-shadow-lg">
+                <AnimatedCounter end={60} suffix="min" delay={1200} duration={2500} />
+              </div>
               <div className="text-xs text-foreground/80 font-medium">Time Limit</div>
             </div>
           </div>

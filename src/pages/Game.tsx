@@ -6,35 +6,23 @@ import { ZoomIn, Upload, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Placeholder images - will be replaced later
-const PLACEHOLDER_IMAGES = [
-  "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1519452575417-564c1401ecc0?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1519452575417-564c1401ecc0?w=400&h=300&fit=crop",
-];
+// Fixed assignment of 3 specific images to each group
+const GROUP_IMAGES = {
+  "A": ["/img/pic1.jpg", "/img/pic2.jpg", "/img/pic3.jpg"],
+  "B": ["/img/pic4.jpg", "/img/pic5.jpg", "/img/pic6.jpg"],
+  "C": ["/img/pic7.jpg", "/img/pic8.jpg", "/img/pic9.jpg"],
+  "D": ["/img/pic10.jpg", "/img/pic1.jpg", "/img/pic4.jpg"],
+  "E": ["/img/pic2.jpg", "/img/pic5.jpg", "/img/pic8.jpg"],
+  "F": ["/img/pic3.jpg", "/img/pic6.jpg", "/img/pic9.jpg"],
+  "G": ["/img/pic7.jpg", "/img/pic10.jpg", "/img/pic2.jpg"],
+  "H": ["/img/pic1.jpg", "/img/pic8.jpg", "/img/pic6.jpg"],
+};
 
 const GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
-const getRandomImages = (count: number) => {
-  const shuffled = [...PLACEHOLDER_IMAGES].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
-};
-
 const Game = () => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [groupImages] = useState<Record<string, string[]>>(
-    GROUPS.reduce((acc, group) => {
-      acc[group] = getRandomImages(3);
-      return acc;
-    }, {} as Record<string, string[]>)
-  );
+  const [groupImages] = useState<Record<string, string[]>>(GROUP_IMAGES);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   return (
@@ -91,8 +79,13 @@ const Game = () => {
                     >
                       <img
                         src={image}
-                        alt={`Spot ${idx + 1}`}
+                        alt={`Campus Location ${idx + 1}`}
                         className="w-full h-48 md:h-64 object-cover transition-transform group-hover:scale-110"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          // Fallback to placeholder if local image fails
+                          target.src = `https://via.placeholder.com/400x300/1a1a2e/16a085?text=Campus+Location+${idx + 1}`;
+                        }}
                       />
                       <button
                         onClick={() => setZoomedImage(image)}
@@ -101,7 +94,7 @@ const Game = () => {
                         <ZoomIn className="w-8 h-8 text-primary" />
                       </button>
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                        <p className="text-sm font-semibold text-visible">Spot {idx + 1}</p>
+                        <p className="text-sm font-semibold text-white">Campus Location {idx + 1}</p>
                       </div>
                     </div>
                   ))}
@@ -109,7 +102,7 @@ const Game = () => {
 
                 <div className="space-y-4 text-visible">
                   <Button
-                    onClick={() => window.open('https://docs.com/hame', '_blank')}
+                    onClick={() => window.open('https://forms.gle/Zn1xZANB8hzdYDHr8', '_blank')}
                     className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity glow-primary text-visible"
                     size="lg"
                   >
@@ -125,16 +118,18 @@ const Game = () => {
       <Footer />
 
       <Dialog open={!!zoomedImage} onOpenChange={() => setZoomedImage(null)}>
-        <DialogContent className="max-w-4xl bg-card border-border">
-          <DialogHeader>
-            <DialogTitle className="gradient-text text-visible">Spot Detail</DialogTitle>
+        <DialogContent className="max-w-4xl max-h-[90vh] bg-card border-border overflow-hidden flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle className="gradient-text text-visible">Campus Location Detail</DialogTitle>
           </DialogHeader>
           {zoomedImage && (
-            <img
-              src={zoomedImage}
-              alt="Zoomed spot"
-              className="w-full h-auto rounded-lg"
-            />
+            <div className="flex-1 overflow-hidden flex items-center justify-center">
+              <img
+                src={zoomedImage}
+                alt="Campus Location Detail"
+                className="max-w-full max-h-full object-contain rounded-lg"
+              />
+            </div>
           )}
         </DialogContent>
       </Dialog>
