@@ -39,52 +39,80 @@ const generateGroupImages = () => {
 
 const GROUP_IMAGES = generateGroupImages();
 
+// Global image cache to persist across component re-renders
+const globalImageCache = new Set<string>();
+const imageLoadPromises = new Map<string, Promise<void>>();
+
+// Preload function that returns a promise
+const preloadImage = (src: string): Promise<void> => {
+  if (globalImageCache.has(src)) {
+    return Promise.resolve();
+  }
+  
+  if (imageLoadPromises.has(src)) {
+    return imageLoadPromises.get(src)!;
+  }
+
+  const promise = new Promise<void>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      globalImageCache.add(src);
+      resolve();
+    };
+    img.onerror = () => {
+      console.warn(`Failed to preload image: ${src}`);
+      reject();
+    };
+    img.src = src;
+  });
+
+  imageLoadPromises.set(src, promise);
+  return promise;
+};
+
 const Game = () => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set(globalImageCache));
 
   // Memoize group images to prevent recreation
   const groupImages = useMemo(() => GROUP_IMAGES, []);
 
-  // Preload images for better performance
+  // Aggressive preloading - load all images immediately
   useEffect(() => {
-    const preloadImages = () => {
+    const preloadAllImages = async () => {
       // Get all unique image URLs
       const allImages = new Set<string>();
       Object.values(groupImages).forEach(images => {
         images.forEach(img => allImages.add(img));
       });
 
-      // Preload images in batches to avoid overwhelming the browser
+      // Load all images in parallel with higher concurrency
       const imageArray = Array.from(allImages);
-      const batchSize = 6; // Load 6 images at a time
-
-      const loadBatch = (startIndex: number) => {
-        const batch = imageArray.slice(startIndex, startIndex + batchSize);
-
-        batch.forEach(src => {
-          const img = new Image();
-          img.onload = () => {
+      const batchSize = 12; // Increased batch size for faster loading
+      
+      for (let i = 0; i < imageArray.length; i += batchSize) {
+        const batch = imageArray.slice(i, i + batchSize);
+        
+        // Load batch in parallel
+        const promises = batch.map(src => 
+          preloadImage(src).then(() => {
             setLoadedImages(prev => new Set(prev).add(src));
-          };
-          img.onerror = () => {
-            // Skip failed images
-            console.warn(`Failed to preload image: ${src}`);
-          };
-          img.src = src;
-        });
-
-        // Load next batch after a short delay
-        if (startIndex + batchSize < imageArray.length) {
-          setTimeout(() => loadBatch(startIndex + batchSize), 100);
+          }).catch(() => {
+            // Continue even if some images fail
+          })
+        );
+        
+        await Promise.allSettled(promises);
+        
+        // Small delay between batches to prevent overwhelming
+        if (i + batchSize < imageArray.length) {
+          await new Promise(resolve => setTimeout(resolve, 50));
         }
-      };
-
-      loadBatch(0);
+      }
     };
 
-    preloadImages();
+    preloadAllImages();
   }, [groupImages]);
 
   return (
@@ -134,13 +162,16 @@ const Game = () => {
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-                  {groupImages[selectedGroup].map((image, idx) => (
+                  {groupImages[selectedGroup].map((image, idx) => {
+                    const isImageCached = globalImageCache.has(image) || loadedImages.has(image);
+                    
+                    return (
                     <div
-                      key={idx}
+                      key={`${selectedGroup}-${idx}`}
                       className="relative group overflow-hidden rounded-lg border border-border hover:border-primary transition-all"
                     >
-                      {/* Loading skeleton */}
-                      {!loadedImages.has(image) && (
+                      {/* Loading skeleton - only show if image is not cached */}
+                      {!isImageCached && (
                         <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
                           <div className="text-gray-400 text-sm">Loading...</div>
                         </div>
@@ -148,20 +179,21 @@ const Game = () => {
                       <img
                         src={image}
                         alt={`Group ${selectedGroup} - Location ${idx + 1}`}
-                        className={`w-full h-48 md:h-56 object-cover transition-all duration-300 group-hover:scale-110 ${loadedImages.has(image) ? 'opacity-100' : 'opacity-0'
-                          }`}
-                        loading="lazy"
-                        decoding="async"
+                        className={`w-full h-48 md:h-56 object-cover transition-all duration-150 group-hover:scale-110 ${
+                          isImageCached ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        loading="eager"
+                        decoding="sync"
                         onLoad={() => {
+                          globalImageCache.add(image);
                           setLoadedImages(prev => new Set(prev).add(image));
                         }}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          // Fallback to placeholder if local image fails
                           target.src = `https://via.placeholder.com/400x300/1a1a2e/16a085?text=Group+${selectedGroup}+Location+${idx + 1}`;
                         }}
                         style={{
-                          backgroundColor: loadedImages.has(image) ? 'transparent' : '#f3f4f6',
+                          backgroundColor: isImageCached ? 'transparent' : '#f3f4f6',
                         }}
                       />
                       <button
@@ -174,7 +206,8 @@ const Game = () => {
                         <p className="text-sm font-semibold text-white">Group {selectedGroup} - Location {idx + 1}</p>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="space-y-4 text-visible">
