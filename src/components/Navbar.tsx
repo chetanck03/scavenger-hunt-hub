@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Compass, Menu, X, Sparkles, Trophy, Users } from "lucide-react";
+import { Compass, Menu, X, Phone, Trophy, Users, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -58,11 +58,11 @@ const Navbar = () => {
               <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300" />
             </Link>
             <a 
-              href="mailto:support@scavengerhunt.com" 
+              href="tel:+916280511047" 
               className="relative text-sm font-semibold text-foreground hover:text-primary transition-all duration-300 group px-3 py-2"
             >
               <span className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
+                <Phone className="w-4 h-4" />
                 Contact
               </span>
               <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300" />
@@ -109,11 +109,11 @@ const Navbar = () => {
               Groups
             </Link>
             <a 
-              href="mailto:support@scavengerhunt.com" 
+              href="tel:+916280511047" 
               className="flex items-center gap-3 text-sm font-semibold text-foreground hover:text-primary transition-all duration-300 py-3 px-4 rounded-lg hover:bg-primary/10"
               onClick={() => setIsOpen(false)}
             >
-              <Sparkles className="w-4 h-4" />
+              <Phone className="w-4 h-4" />
               Contact
             </a>
             <Button

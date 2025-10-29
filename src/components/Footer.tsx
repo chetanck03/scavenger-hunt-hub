@@ -1,4 +1,4 @@
-import { Compass } from "lucide-react";
+import { Compass, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -40,10 +40,11 @@ const Footer = () => {
           <div className="space-y-3">
             <h3 className="font-semibold text-sm">Contact</h3>
             <a 
-              href="mailto:support@scavengerhunt.com"
-              className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+              href="tel:+916280511047"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
             >
-              support@scavengerhunt.com
+              <Phone className="w-4 h-4" />
+              +91 6280511047
             </a>
           </div>
         </div>
