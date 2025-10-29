@@ -102,7 +102,7 @@ const Game = () => {
 
                 <div className="space-y-4 text-visible">
                   <Button
-                    onClick={() => window.open('https://forms.gle/Zn1xZANB8hzdYDHr8', '_blank')}
+                    onClick={() => window.open('https://forms.gle/JsH5ESkTrUWQRFA18', '_blank')}
                     className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity glow-primary text-visible"
                     size="lg"
                   >
