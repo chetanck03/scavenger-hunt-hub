@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Users, MapPin, Camera, Clock, Trophy, AlertCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4">
@@ -158,6 +159,7 @@ const Index = () => {
           </Button>
         </div>
       </section>
+      <Footer />
     </div>
   );
 };

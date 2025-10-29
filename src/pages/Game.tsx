@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
-import { ZoomIn, Upload } from "lucide-react";
+import { ZoomIn, Upload, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 // Placeholder images - will be replaced later
 const PLACEHOLDER_IMAGES = [
@@ -37,79 +38,91 @@ const Game = () => {
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <div className="py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 gradient-text animate-slide-up">
-          Choose Your Group
-        </h1>
-        <p className="text-center text-muted-foreground mb-12 animate-slide-up">
-          Select a group to view your assigned spots
-        </p>
+      <div className="py-8 px-4 flex-1">
+        <div className="max-w-7xl mx-auto">
+          {!selectedGroup ? (
+            <>
+              <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 gradient-text animate-slide-up">
+                Choose Your Group
+              </h1>
+              <p className="text-center text-muted-foreground mb-12 animate-slide-up">
+                Select a group to view your assigned spots
+              </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-          {GROUPS.map((group, index) => (
-            <Card
-              key={group}
-              className="card-gaming p-6 cursor-pointer text-center"
-              style={{ animationDelay: `${index * 0.1}s` }}
-              onClick={() => setSelectedGroup(group)}
-            >
-              <div className="text-5xl md:text-6xl font-bold gradient-text mb-2">
-                {group}
-              </div>
-              <p className="text-sm text-muted-foreground">Group {group}</p>
-            </Card>
-          ))}
-        </div>
-
-        {selectedGroup && (
-          <div className="animate-slide-up">
-            <Card className="card-gaming p-6 md:p-8">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">
-                Group {selectedGroup} - Your Spots
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-                {groupImages[selectedGroup].map((image, idx) => (
-                  <div
-                    key={idx}
-                    className="relative group overflow-hidden rounded-lg border border-border hover:border-primary transition-all"
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                {GROUPS.map((group, index) => (
+                  <Card
+                    key={group}
+                    className="card-gaming p-6 cursor-pointer text-center hover:scale-105 transition-transform"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                    onClick={() => setSelectedGroup(group)}
                   >
-                    <img
-                      src={image}
-                      alt={`Spot ${idx + 1}`}
-                      className="w-full h-48 md:h-64 object-cover transition-transform group-hover:scale-110"
-                    />
-                    <button
-                      onClick={() => setZoomedImage(image)}
-                      className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                    >
-                      <ZoomIn className="w-8 h-8 text-primary" />
-                    </button>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                      <p className="text-sm font-semibold">Spot {idx + 1}</p>
+                    <div className="text-5xl md:text-6xl font-bold gradient-text mb-2">
+                      {group}
                     </div>
-                  </div>
+                    <p className="text-sm text-muted-foreground">Group {group}</p>
+                  </Card>
                 ))}
               </div>
+            </>
+          ) : (
+            <div className="animate-fade-in">
+              <Button
+                variant="ghost"
+                onClick={() => setSelectedGroup(null)}
+                className="mb-6 hover:bg-muted"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Groups
+              </Button>
 
-              <div className="space-y-4">
-                <Button
-                  onClick={() => window.open('https://docs.com/hame', '_blank')}
-                  className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity glow-primary"
-                  size="lg"
-                >
-                  <Upload className="mr-2 h-5 w-5" />
-                  Submit Task (Google Docs)
-                </Button>
-              </div>
-            </Card>
-          </div>
-        )}
+              <Card className="card-gaming p-6 md:p-8">
+                <h2 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">
+                  Group {selectedGroup} - Your Spots
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+                  {groupImages[selectedGroup].map((image, idx) => (
+                    <div
+                      key={idx}
+                      className="relative group overflow-hidden rounded-lg border border-border hover:border-primary transition-all"
+                    >
+                      <img
+                        src={image}
+                        alt={`Spot ${idx + 1}`}
+                        className="w-full h-48 md:h-64 object-cover transition-transform group-hover:scale-110"
+                      />
+                      <button
+                        onClick={() => setZoomedImage(image)}
+                        className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                      >
+                        <ZoomIn className="w-8 h-8 text-primary" />
+                      </button>
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                        <p className="text-sm font-semibold">Spot {idx + 1}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-4">
+                  <Button
+                    onClick={() => window.open('https://docs.com/hame', '_blank')}
+                    className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity glow-primary"
+                    size="lg"
+                  >
+                    <Upload className="mr-2 h-5 w-5" />
+                    Submit Task (Google Docs)
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          )}
+        </div>
       </div>
-      </div>
+      <Footer />
 
       <Dialog open={!!zoomedImage} onOpenChange={() => setZoomedImage(null)}>
         <DialogContent className="max-w-4xl bg-card border-border">
